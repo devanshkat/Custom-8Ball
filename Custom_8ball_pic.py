@@ -53,39 +53,38 @@ def show_add_image():
     name_image_entry = Entry(root, width=100)
     name_image_entry.insert(0, "Name Your Image")
     name_image_entry.grid(row=2, column=0, pady=2, ipady=11, sticky=W)
-
-
-    def add_image():
-        try:
-            connec = sqlite3.connect("custom_8Ball_images.db")
-            curso = connec.cursor()
-            new_filename = filedialog.askopenfilename(initialdir='c:/custom8ball/custom8ballimages', title="Add an Image")
-            with open(new_filename, 'rb') as file:
-                image = file.read()
-            name = str(name_image_entry.get())
-            curso.execute("INSERT INTO pictures (names, images) VALUES (?, ?)",  (name, image))
-            
-            data = curso.execute("""
-            SELECT * FROM pictures
-            """)
-
-            path = str("c:/custom8ball/custom8ballimages/")
-            for x in data:
-                rec_name = str(path + x[0] + ".jpg")
-                rec_data = x[1]
-                with open(rec_name, 'wb') as file:
-                    file.write(rec_data)
-                name_image_entry.delete(0, END)
-                name_image_entry.insert(0, "Image Added")
-        except:
-            name_image_entry.delete(0, END)
-            name_image_entry.insert(0, "Adding Image Failed")
-    
     name_image_btn = Button(root, text="Choose Image", height=2, width=16, relief=RAISED, font=("OpenSans-Regular.ttf", 12, "bold"), command=add_image)
     name_image_btn.grid(row=2, column=1, pady=2, sticky=E)
 
+def add_image():
+    global path
 
-    connec.commit()
+    try:
+        connec = sqlite3.connect("custom_8Ball_images.db")
+        curso = connec.cursor()
+        new_filename = filedialog.askopenfilename(initialdir='c:/custom8ball/custom8ballimages', title="Add an Image")
+        with open(new_filename, 'rb') as file:
+            image = file.read()
+        name = str(name_image_entry.get())
+        curso.execute("INSERT INTO pictures (names, images) VALUES (?, ?)",  (name, image))
+        
+        data = curso.execute("""
+        SELECT * FROM pictures
+        """)
+
+        path = str("c:/custom8ball/custom8ballimages/")
+        for x in data:
+            rec_name = str(path + x[0] + ".jpg")
+            rec_data = x[1]
+            with open(rec_name, 'wb') as file:
+                file.write(rec_data)
+            name_image_entry.delete(0, END)
+            name_image_entry.insert(0, "Image Added")
+        connec.commit()
+    except:
+        name_image_entry.delete(0, END)
+        name_image_entry.insert(0, "Adding Image Failed")
+
     curso.close()
     connec.close()
 
@@ -96,8 +95,48 @@ add_image_btn.grid(row=1, column=0, columnspan=2)
 # Show Images
 
 
+def show_images():
+    global path
+
+    show_images_button.grid_forget()
+
+    def hide_images():
+        in_frame.grid_forget()
+        image_label_name.grid_forget()
+        img_label.grid_forget()
+        show_images_button = Button(root, text="Show Your Custom Images", height=3, width=85, relief=RAISED, font= ('OpenSans-Regular.ttf', 11, "bold"), command=show_images)
+        show_images_button.grid(row=3, column=0, columnspan=2)
+
+    hide_images_button = Button(root, text="Show Your Custom Images", height=3, width=85, relief=RAISED, font= ('OpenSans-Regular.ttf', 11, "bold"), command=hide_images)
+    hide_images_button.grid(row=3, column=0, columnspan=2)
+
+    connec = sqlite3.connect("custom_8Ball_images.db")
+    curso = connec.cursor()
+    data = curso.execute("""
+    SELECT * FROM pictures
+    """)
+    img_number = -1
+    path = str("c:/custom8ball/custom8ballimages/")
+    in_frame = LabelFrame(root, bd=0)
+    in_frame.grid(row=4, column=0, columnspan=2)
+
+    for x in data:
+        img_number += 1
+        image_name = str(x[0])
+        image_label_name = Label(in_frame, text=image_name, font=('OpenSans-Regular.ttf', 11, "bold"))
+        image_label_name.grid(row=img_number, column=1)
+        name = str(path + image_name + ".jpg")
+        image = ImageTk.PhotoImage(Image.open(name))
+        img_label = Label(in_frame, image=image)
+        img_label.grid(row=img_number, column=2)
+
+    connec.commit()
+    curso.close()
+    connec.close()
 
 
+show_images_button = Button(root, text="Show Your Custom Images", height=3, width=85, relief=RAISED, font= ('OpenSans-Regular.ttf', 11, "bold"), command=show_images)
+show_images_button.grid(row=3, column=0, columnspan=2)
 
 # Remove Images
 
