@@ -143,7 +143,7 @@ def play_game():
 
     play_window = Toplevel()
     play_window.title("Play Customizable 8Ball!")
-    play_window.iconbitmap('magicBallStart.ico')    
+    play_window.iconbitmap('c:/custom8ball/custom8ballimages/magicBallStart.ico')    
     
     question_box = Entry(play_window, width=50, borderwidth=7)
     question_box.grid(row=0, column=0, pady=(0,15), ipady=6)
