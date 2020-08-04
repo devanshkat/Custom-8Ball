@@ -103,7 +103,6 @@ def show_images():
     def hide_images():
         in_frame.grid_forget()
         image_label_name.grid_forget()
-        img_label.grid_forget()
         show_images_button = Button(root, text="Show Your Custom Images", height=3, width=85, relief=RAISED, font= ('OpenSans-Regular.ttf', 11, "bold"), command=show_images)
         show_images_button.grid(row=3, column=0, columnspan=2)
 
@@ -113,22 +112,31 @@ def show_images():
     connec = sqlite3.connect("custom_8Ball_images.db")
     curso = connec.cursor()
     data = curso.execute("""
-    SELECT * FROM pictures
+    SELECT *, oid FROM pictures
     """)
-    img_number = -1
     path = str("c:/custom8ball/custom8ballimages/")
     in_frame = LabelFrame(root, bd=0)
     in_frame.grid(row=4, column=0, columnspan=2)
+    row_img_num = -1
+    column_img_num = -1
 
     for x in data:
-        img_number += 1
+        column_img_num += 1
+        column_img_num = column_img_num % 3
+        if column_img_num == 0:
+            row_img_num +=1
+
         image_name = str(x[0])
         image_label_name = Label(in_frame, text=image_name, font=('OpenSans-Regular.ttf', 11, "bold"))
-        image_label_name.grid(row=img_number, column=1)
-        name = str(path + image_name + ".jpg")
-        image = ImageTk.PhotoImage(Image.open(name))
-        img_label = Label(in_frame, image=image)
-        img_label.grid(row=img_number, column=2)
+
+        if column_img_num == 0:
+            image_label_name.grid(row=row_img_num, column=column_img_num, sticky=W, padx=(50,100))
+        
+        if column_img_num == 1:
+            image_label_name.grid(row=row_img_num, column=column_img_num, padx=50)
+
+        if column_img_num == 2:
+            image_label_name.grid(row=row_img_num, column=column_img_num, sticky=E, padx=(100,50))
 
     connec.commit()
     curso.close()
